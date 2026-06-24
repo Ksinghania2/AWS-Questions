@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+echo "== sync =="
+
+#check for the source and destination
+if [ -z "$1" ] || [ -z "$2" ]; then
+  echo "Usage: ./sync <source-path> <bucket-name>"
+  echo "Example: ./sync ./local-folder kshitijsinghania-bucket"
+  exit 1
+fi
+
+source_path="$1"
+bucket_name="$2"
+
+# Sync local folder to S3 bucket
+aws s3 sync "$source_path" "s3://$bucket_name" \
+  --delete \
+  --exclude ".git/*"
+
+echo "Sync completed from $source_path to s3://$bucket_name"
+

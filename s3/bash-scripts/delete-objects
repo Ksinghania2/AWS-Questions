@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+echo " == delete-objects == "
+
+#exit immediately if any objects returns a non-zero exit code
+set -e
+
+# check for the bucket name
+if [ -z "$1" ]; then
+  echo "There need to be a bucket name eg. ./create-bucket.sh kshitijsinghania-bucket"
+  exit 1
+fi
+
+bucket_name="$1"
+
+# Delete all objects in the bucket
+aws s3api list-objects-v2 --bucket "$bucket_name" --query 'Contents[].Key' --output text | \
+xargs -I {} aws s3api delete-object --bucket "$bucket_name" --key {}

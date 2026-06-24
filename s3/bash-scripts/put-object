@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+echo " == put-object "
+
+#check for the bucket name
+if [ -z "$1" ]; then
+  echo "There need to be a bucket name eg. ./put-object kshitijsinghania-bucket"
+  exit 1
+fi
+
+#check for the object key
+if [ -z "$2" ]; then
+  echo "There need to be an object key eg. ./put-object kshitijsinghania-bucket mykey.txt"
+  exit 1
+fi
+
+aws s3api put-object \
+--bucket "$1" \
+--key "$2" \
+--body "$2"
