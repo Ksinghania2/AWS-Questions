@@ -32,10 +32,10 @@
 
 echo " === Deleting All S3 Bucket Objects ==="
 
-# STEP 1: Exit immediately if any command fails (error handling)
+# Stop if any command fails.
 set -e
 
-# STEP 2: Validate Input Parameters
+# Make sure a bucket name was provided.
 if [ -z "$1" ]; then
   echo "❌ ERROR: Bucket name is required"
   echo "Usage: ./delete-objects <bucket-name>"
@@ -46,11 +46,11 @@ fi
 # Store bucket name for readability
 BUCKET_NAME="$1"
 
-# STEP 3: Display operation details
+# Show the warning and start scanning the bucket.
 echo "⚠️  WARNING: You are about to DELETE ALL OBJECTS in: $BUCKET_NAME"
 echo "🔍 Scanning bucket..."
 
-# STEP 4: Count objects before deletion
+# Count objects before deletion.
 OBJECT_COUNT=$(aws s3api list-objects-v2 \
   --bucket "$BUCKET_NAME" \
   --query 'length(Contents)' \

@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 
-echo " == deploy s3 bucket via cfn template == "
+# Deploy a simple S3 bucket with CloudFormation.
+
+echo "== deploy s3 bucket via cfn template =="
 STACK_NAME="s3-bucket-stack"
 
+# Replace the bucket name with your own unique name.
 aws cloudformation deploy \
   --template-file s3/cfn/template.yaml \
-  --stack-name $STACK_NAME \
+  --stack-name "$STACK_NAME" \
   --capabilities CAPABILITY_NAMED_IAM \
-  --parameter-overrides BucketName="ksinghania5057" \
+  --parameter-overrides BucketName="your-unique-bucket-name" \
   --region ap-south-1

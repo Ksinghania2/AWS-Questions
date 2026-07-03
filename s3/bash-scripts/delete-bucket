@@ -27,7 +27,7 @@
 
 echo " === Deleting S3 Bucket ==="
 
-# STEP 1: Validate Input Parameters
+# Make sure the bucket name was provided.
 if [ -z "$1" ]; then
   echo "❌ ERROR: Bucket name is required"
   echo "Usage: ./delete-bucket <bucket-name>"
@@ -38,14 +38,12 @@ fi
 # Store bucket name for readability
 BUCKET_NAME="$1"
 
-# STEP 2: Warn user about destructive operation
+# Warn the user because this action is destructive.
 echo "⚠️  WARNING: You are about to PERMANENTLY delete bucket: $BUCKET_NAME"
 echo "⚠️  This action cannot be undone!"
 echo "⚠️  Bucket must be empty before deletion"
 
-# STEP 3: Delete the bucket
-# --bucket: Specifies the bucket to delete
-# Important: Will fail if bucket is not empty
+# Try to delete the bucket.
 echo "🗑️  Deleting bucket..."
 
 DELETION_RESULT=$(aws s3api delete-bucket \

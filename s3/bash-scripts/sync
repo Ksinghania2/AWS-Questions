@@ -41,7 +41,7 @@
 
 echo "== S3 Bucket Sync =="
 
-# STEP 1: Validate Parameters
+# Check that the source path and bucket name were provided.
 if [ -z "$1" ] || [ -z "$2" ]; then
   echo "❌ ERROR: Source path and bucket name are required"
   echo "Usage: ./sync <source-path> <bucket-name> [options]"
@@ -62,32 +62,26 @@ SOURCE_PATH="$1"
 BUCKET_NAME="$2"
 shift 2  # Remove first two args, remaining are options
 
-# STEP 2: Validate source directory exists
+# Make sure the local folder exists before syncing.
 if [ ! -d "$SOURCE_PATH" ]; then
   echo "❌ ERROR: Source directory not found: $SOURCE_PATH"
   exit 1
 fi
 
-# STEP 3: Display sync configuration
+# Show the sync settings.
 echo "📦 Source Directory: $SOURCE_PATH"
 echo "🪣 S3 Bucket: $BUCKET_NAME"
 echo "🌐 S3 Path: s3://$BUCKET_NAME"
 echo ""
 
-# STEP 4: Get directory statistics
+# Count files and estimate the size of the local folder.
 FILE_COUNT=$(find "$SOURCE_PATH" -type f | wc -l)
 DIR_SIZE=$(du -sh "$SOURCE_PATH" | cut -f1)
 echo "📊 Files to sync: $FILE_COUNT"
 echo "💾 Total size: $DIR_SIZE"
 echo ""
 
-# STEP 5: Execute sync command
-# aws s3 sync: Synchronizes local directory with S3 location
-# SOURCE_PATH: Local directory to sync from
-# s3://BUCKET_NAME: S3 destination
-# $@: Pass remaining arguments (--delete, --exclude, etc.)
-# --exclude ".git/*": Don't sync git files by default
-# --delete: Remove S3 files not in local source (optional)
+# Run the actual sync command.
 echo "⏳ Starting sync..."
 echo ""
 

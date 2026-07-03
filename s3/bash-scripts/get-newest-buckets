@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
+
+# List S3 buckets sorted by creation date, newest first.
 echo "get-newest-buckets"
-
-
 aws s3api list-buckets | jq -r '.Buckets | sort_by(.CreationDate) | reverse | .[] | .Name'

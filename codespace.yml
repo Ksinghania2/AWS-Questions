@@ -1,0 +1,12 @@
+name: aws-s3-practice
+
+devContainer:
+  image: mcr.microsoft.com/devcontainers/base:ubuntu
+  features:
+    - id: ghcr.io/devcontainers/features/aws-cli:1
+    - id: ghcr.io/devcontainers/features/terraform:1
+    - id: ghcr.io/devcontainers/features/powershell:1
+
+postCreateCommand: |
+  chmod +x bin/*.sh s3/bash-scripts/*
+  echo "AWS S3 practice environment is ready."

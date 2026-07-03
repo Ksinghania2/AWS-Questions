@@ -30,7 +30,7 @@
 
 echo " === Listing S3 Bucket Objects ==="
 
-# STEP 1: Validate Input Parameters
+# Check that a bucket name was provided.
 if [ -z "$1" ]; then
   echo "❌ ERROR: Bucket name is required"
   echo "Usage: ./list-objects <bucket-name> [max-items]"
@@ -41,19 +41,15 @@ fi
 # Store bucket name for readability
 BUCKET_NAME="$1"
 
-# STEP 2: Optional maximum items parameter
-# Default: AWS returns up to 1000 objects
+# Set a default limit if the user does not provide one.
 MAX_ITEMS=${2:-1000}
 
-# STEP 3: Display query details
+# Show the bucket and the requested item limit.
 echo "📦 Bucket: $BUCKET_NAME"
 echo "📊 Maximum items to retrieve: $MAX_ITEMS"
 echo ""
 
-# STEP 4: List objects in the bucket
-# --bucket: Specifies the bucket to query
-# --max-items: Maximum number of objects to return (default 1000)
-# Returns JSON output with object metadata
+# List the objects in the bucket.
 echo "⏳ Retrieving objects..."
 echo ""
 

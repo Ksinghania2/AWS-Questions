@@ -1,93 +1,33 @@
-# Carpool Connect
+# AWS S3 Practice Repo
 
-A student-level carpool management project with a backend API and a simple frontend dashboard.
+This repo is a simple place to practice AWS S3 with the CLI, PowerShell, IaC tools, and SDKs.
 
-## What it does
+## What you can try
+- create an S3 bucket
+- upload a file
+- list bucket contents
+- try basic CloudFormation, CDK, Terraform, and Pulumi examples
+- explore Java and Ruby SDK starters
 
-This app lets users:
-- register and log in with JWT auth
-- browse carpool rides
-- join rides as a participant
-- view their own bookings
-- submit and read reviews
+## Main folders
+- [s3/bash-scripts](s3/bash-scripts) : simple AWS CLI examples
+- [s3/powershell-scripts](s3/powershell-scripts) : PowerShell example
+- [s3/iac/cfn](s3/iac/cfn) : CloudFormation example
+- [s3/iac/cdk](s3/iac/cdk) : CDK example
+- [s3/iac/terraform](s3/iac/terraform) : Terraform example
+- [s3/iac/pulumi](s3/iac/pulumi) : Pulumi example
+- [s3/sdk/java](s3/sdk/java) : Java SDK starter
+- [s3/sdk/ruby](s3/sdk/ruby) : Ruby SDK starter
+- [s3/etags](s3/etags) : short ETag notes
 
-It also includes:
-- a landing page at `/`
-- a basic dashboard at `/dashboard.html`
-- Docker Compose support for local setup
-
-## Project features
-
-- Express backend with clean routes
-- MySQL connection using `mysql2/promise`
-- JWT authentication and password hashing
-- Basic frontend landing page and dashboard
-- Containerized dev environment
-- Simple, student-friendly code structure
-
-## Setup
-
-1. Install dependencies:
-
-   ```bash
-   npm install
-   ```
-
-2. Start the database and app with Docker Compose:
-
-   ```bash
-   docker compose up --build
-   ```
-
-3. Open the site in your browser:
-
-   ```text
-   https://<your-github-codespace-host>-5000.app.github.dev/
-   ```
-
-4. Open the dashboard:
-
-   ```text
-   https://<your-github-codespace-host>-5000.app.github.dev/dashboard.html
-   ```
-
-## Quick start
-
-- `GET /` — landing page
-- `GET /health` — API health check
-- `GET /api/rides` — list rides
-- `POST /api/auth/login` — log in
-- `POST /api/auth/register` — register new user
-
-## Frontend pages
-
-- `/` — landing page with project overview
-- `/dashboard.html` — simple frontend dashboard for login and API examples
-
-## Usage examples
-
-Login with curl:
-
+## Basic terminal commands
 ```bash
-curl -X POST http://localhost:5000/api/auth/login \
-  -H 'Content-Type: application/json' \
-  -d '{"username": "student1", "password": "secret123"}'
+cd s3/bash-scripts
+./create-bucket my-test-bucket
+./put-object my-test-bucket hello.txt
+./list-objects my-test-bucket
 ```
 
-View rides:
-
-```bash
-curl http://localhost:5000/api/rides
-```
-
-Health check:
-
-```bash
-curl http://localhost:5000/health
-```
-
-## Notes
-
-- This is intentionally a student-level capstone project.
-- Use the dashboard as a simple demo interface, not a full production frontend.
-- Keep `.env` secret and do not commit it.
+## Setup notes
+- Run the installer scripts in [bin](bin) if you need AWS CLI, PowerShell, or Terraform.
+- Make sure your AWS CLI is configured before running the examples.

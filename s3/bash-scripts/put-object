@@ -1,98 +1,16 @@
 #!/usr/bin/env bash
 
-################################################################################
-# S3 OBJECT UPLOAD SCRIPT
-#
-# Purpose:
-#   This script uploads a file to an S3 bucket.
-#   The file is stored with a specified key (object name) in the bucket.
-#
-# Prerequisites:
-#   - AWS CLI installed and configured with valid AWS credentials
-#   - Permissions: s3:PutObject
-#   - Source file must exist locally
-#
-# Usage:
-#   ./put-object <bucket-name> <object-key> [source-file]
-#
-# Examples:
-#   ./put-object my-data-bucket file.txt              (uploads file.txt as file.txt)
-#   ./put-object my-data-bucket docs/file.txt file.txt (uploads with key path)
-#
-# Object Naming:
-#   - Keys can be up to 1024 bytes of UTF-8 characters
-#   - Forward slashes (/) create logical folder structure
-#   - Special characters are allowed but URL-encoded in URLs
-#
-# Common Object Metadata:
-#   - ETag: Unique identifier for object version
-#   - LastModified: Upload timestamp
-#   - Size: File size in bytes
-#   - StorageClass: Storage tier (STANDARD, INFREQUENT_ACCESS, etc.)
-################################################################################
+# Simple script to upload a file to S3
+# Usage: ./put-object <bucket-name> <key> <local-file>
 
-echo " === Uploading File to S3 ==="
-
-# STEP 1: Validate Bucket Name
-if [ -z "$1" ]; then
-  echo "❌ ERROR: Bucket name is required"
-  echo "Usage: ./put-object <bucket-name> <object-key> [source-file]"
-  echo "Example: ./put-object my-data-bucket myfile.txt"
+if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]; then
+  echo "Usage: ./put-object <bucket-name> <key> <local-file>"
   exit 1
 fi
 
-# Store bucket name for readability
 BUCKET_NAME="$1"
+KEY="$2"
+FILE="$3"
 
-# STEP 2: Validate Object Key
-if [ -z "$2" ]; then
-  echo "❌ ERROR: Object key is required"
-  echo "Usage: ./put-object <bucket-name> <object-key> [source-file]"
-  echo "Example: ./put-object my-data-bucket myfile.txt"
-  exit 1
-fi
-
-# Store object key (name in S3) for readability
-OBJECT_KEY="$2"
-
-# STEP 3: Determine source file
-# If third parameter provided, use it as source file
-# Otherwise, use the object key as both key and source filename
-SOURCE_FILE="${3:-$2}"
-
-# STEP 4: Verify source file exists
-if [ ! -f "$SOURCE_FILE" ]; then
-  echo "❌ ERROR: Source file not found: $SOURCE_FILE"
-  echo "Please verify the file exists and is readable"
-  exit 1
-fi
-
-# STEP 5: Display upload details
-echo "📦 Bucket: $BUCKET_NAME"
-echo "📝 Object Key: $OBJECT_KEY"
-echo "📄 Source File: $SOURCE_FILE"
-echo "📊 File Size: $(du -h "$SOURCE_FILE" | cut -f1)"
-echo ""
-
-# STEP 6: Upload the file to S3
-# --bucket: Target S3 bucket
-# --key: Object name/path in S3 (supports folder-like paths with /)
-# --body: Local file path to upload
-# This preserves the file with its metadata
-echo "⏳ Uploading..."
-
-UPLOAD_RESULT=$(aws s3api put-object \
-  --bucket "$BUCKET_NAME" \
-  --key "$OBJECT_KEY" \
-  --body "$SOURCE_FILE" 2>&1)
-
-# STEP 7: Verify upload success
-if [ $? -eq 0 ]; then
-  echo "✅ SUCCESS: File uploaded successfully"
-  echo "Response: $UPLOAD_RESULT"
-  exit 0
-else
-  echo "❌ FAILURE: Could not upload file"
-  echo "Error: $UPLOAD_RESULT"
-  exit 1
-fi
+echo "Uploading $FILE to s3://$BUCKET_NAME/$KEY"
+aws s3 cp "$FILE" "s3://$BUCKET_NAME/$KEY"

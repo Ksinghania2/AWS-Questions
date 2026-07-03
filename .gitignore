@@ -1,0 +1,63 @@
+# Python bytecode and virtual environments
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+
+# Pulumi state and local files
+.pulumi/
+*.pyi
+
+# Terraform state and crash logs
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraform.lock.hcl
+
+# AWS / credentials
+.aws-sam/
+.env
+.env.*
+*.pem
+*.key
+*.pub
+
+# OS/editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs and temp files
+*.log
+*.tmp
+*.bak
+
+# Local archives
+*.zip
+*.tar
+*.gz
+
+# Test outputs
+coverage/
+.pytest_cache/
+
+# Node / CDK
+node_modules/
+cdk.out/
+
+# PowerShell artifacts
+*.ps1xml
+
+# Codespaces and local environment
+.devcontainer/
+.vscode/
+*.code-workspace
