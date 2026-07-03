@@ -1,12 +1,63 @@
 #!/usr/bin/env bash
 
-echo "  == delete-bucket "
+################################################################################
+# S3 BUCKET DELETION SCRIPT
+#
+# Purpose:
+#   This script safely deletes an AWS S3 bucket.
+#   NOTE: The bucket must be EMPTY before deletion. All objects must be removed.
+#
+# Prerequisites:
+#   - AWS CLI installed and configured with valid AWS credentials
+#   - Permissions: s3:DeleteBucket
+#   - Target bucket must be empty (no objects)
+#   - Bucket versioning must be suspended (if enabled)
+#
+# Usage:
+#   ./delete-bucket <bucket-name>
+#
+# Example:
+#   ./delete-bucket my-app-data-bucket
+#
+# Important Warnings:
+#   ⚠️  Deletion is PERMANENT and IRREVERSIBLE
+#   ⚠️  All object versions will be lost if not backed up
+#   ⚠️  Bucket must be completely empty before deletion
+################################################################################
 
-#check for the bucket name
+echo " === Deleting S3 Bucket ==="
+
+# STEP 1: Validate Input Parameters
 if [ -z "$1" ]; then
-  echo "There need to be a bucket name eg. ./delete-bucket kshitijsinghania-bucket"
+  echo "❌ ERROR: Bucket name is required"
+  echo "Usage: ./delete-bucket <bucket-name>"
+  echo "Example: ./delete-bucket my-data-bucket"
   exit 1
 fi
 
-aws s3api delete-bucket \
---bucket "$1"
+# Store bucket name for readability
+BUCKET_NAME="$1"
+
+# STEP 2: Warn user about destructive operation
+echo "⚠️  WARNING: You are about to PERMANENTLY delete bucket: $BUCKET_NAME"
+echo "⚠️  This action cannot be undone!"
+echo "⚠️  Bucket must be empty before deletion"
+
+# STEP 3: Delete the bucket
+# --bucket: Specifies the bucket to delete
+# Important: Will fail if bucket is not empty
+echo "🗑️  Deleting bucket..."
+
+DELETION_RESULT=$(aws s3api delete-bucket \
+  --bucket "$BUCKET_NAME" 2>&1)
+
+# STEP 4: Verify deletion success
+if [ $? -eq 0 ]; then
+  echo "✅ SUCCESS: Bucket '$BUCKET_NAME' has been deleted"
+  exit 0
+else
+  echo "❌ FAILURE: Could not delete bucket"
+  echo "Error: $DELETION_RESULT"
+  echo "💡 Tip: Bucket must be empty. Use './delete-objects $BUCKET_NAME' first"
+  exit 1
+fi

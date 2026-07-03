@@ -1,15 +1,75 @@
 #!/usr/bin/env bash
 
-echo " == create-bucket "
+################################################################################
+# S3 BUCKET CREATION SCRIPT
+# 
+# Purpose:
+#   This script creates an AWS S3 bucket with proper configuration.
+#   S3 buckets are global storage resources that must have globally unique names.
+#
+# Prerequisites:
+#   - AWS CLI installed and configured with valid AWS credentials
+#   - Permissions: s3:CreateBucket, s3:PutBucketConfiguration
+#
+# Usage:
+#   ./create-bucket <bucket-name>
+#
+# Example:
+#   ./create-bucket my-app-data-bucket
+#
+# Bucket Naming Rules:
+#   - Must be between 3-63 characters
+#   - Can only contain lowercase letters, numbers, hyphens (-)
+#   - Must start and end with a letter or number
+#   - Cannot be formatted as an IP address (e.g., 192.168.1.1)
+#   - Must be globally unique across ALL AWS accounts
+#
+# Regional Consideration:
+#   - This script creates buckets in ap-south-1 (Mumbai, India)
+#   - For us-east-1, omit the --create-bucket-configuration parameter
+#   - Other regions require LocationConstraint specification
+################################################################################
 
-#check for the bucket name
+echo " == Creating S3 Bucket ==="
+
+# STEP 1: Validate Input Parameters
+# Check if bucket name was provided as first argument
 if [ -z "$1" ]; then
-  echo "There need to be a bucket name eg. ./create-bucket kshitijsinghania-bucket"
+  echo "❌ ERROR: Bucket name is required"
+  echo "Usage: ./create-bucket <bucket-name>"
+  echo "Example: ./create-bucket my-data-bucket"
   exit 1
 fi
 
-aws s3api create-bucket \
---bucket "$1" \
---create-bucket-configuration LocationConstraint=ap-south-1 \
---query Location \
---output text
+# Store bucket name for readability
+BUCKET_NAME="$1"
+
+# STEP 2: Display bucket creation details
+echo "📦 Bucket Name: $BUCKET_NAME"
+echo "🌍 Region: ap-south-1 (Mumbai)"
+
+# STEP 3: Create the S3 bucket with region configuration
+# --bucket: Specifies the name of the bucket to create
+# --create-bucket-configuration: Sets the region for bucket creation
+#   (Required for all regions except us-east-1)
+# LocationConstraint: AWS region constraint (must match desired region)
+# --query Location: Returns only the location from the response
+# --output text: Formats output as plain text instead of JSON
+echo "⏳ Creating bucket..."
+
+CREATION_RESULT=$(aws s3api create-bucket \
+  --bucket "$BUCKET_NAME" \
+  --create-bucket-configuration LocationConstraint=ap-south-1 \
+  --query Location \
+  --output text 2>&1)
+
+# STEP 4: Verify bucket creation was successful
+if [ $? -eq 0 ]; then
+  echo "✅ SUCCESS: Bucket created successfully"
+  echo "📍 Location: $CREATION_RESULT"
+  exit 0
+else
+  echo "❌ FAILURE: Could not create bucket"
+  echo "Error: $CREATION_RESULT"
+  exit 1
+fi

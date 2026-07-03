@@ -1,12 +1,71 @@
 #!/usr/bin/env bash
 
-echo " == list-objects "
+################################################################################
+# S3 BUCKET OBJECTS LISTING SCRIPT
+#
+# Purpose:
+#   This script lists all objects (files) in an S3 bucket.
+#   Provides visibility into bucket contents including object size and metadata.
+#
+# Prerequisites:
+#   - AWS CLI installed and configured with valid AWS credentials
+#   - Permissions: s3:ListBucket
+#
+# Usage:
+#   ./list-objects <bucket-name> [max-items]
+#
+# Examples:
+#   ./list-objects my-data-bucket              (lists all objects)
+#   ./list-objects my-data-bucket 10           (lists first 10 objects)
+#
+# Output Format:
+#   Returns JSON with:
+#   - Name: Bucket name
+#   - Prefix: Key prefix used for filtering
+#   - Marker: Pagination reference
+#   - MaxKeys: Maximum results returned
+#   - IsTruncated: Whether more results exist
+#   - Contents: Array of objects with Key, LastModified, ETag, Size, StorageClass
+################################################################################
 
-#check for the bucket name
+echo " === Listing S3 Bucket Objects ==="
+
+# STEP 1: Validate Input Parameters
 if [ -z "$1" ]; then
-  echo "There need to be a bucket name eg. ./list-objects kshitijsinghania-bucket"
+  echo "❌ ERROR: Bucket name is required"
+  echo "Usage: ./list-objects <bucket-name> [max-items]"
+  echo "Example: ./list-objects my-data-bucket"
   exit 1
 fi
 
+# Store bucket name for readability
+BUCKET_NAME="$1"
+
+# STEP 2: Optional maximum items parameter
+# Default: AWS returns up to 1000 objects
+MAX_ITEMS=${2:-1000}
+
+# STEP 3: Display query details
+echo "📦 Bucket: $BUCKET_NAME"
+echo "📊 Maximum items to retrieve: $MAX_ITEMS"
+echo ""
+
+# STEP 4: List objects in the bucket
+# --bucket: Specifies the bucket to query
+# --max-items: Maximum number of objects to return (default 1000)
+# Returns JSON output with object metadata
+echo "⏳ Retrieving objects..."
+echo ""
+
 aws s3api list-objects \
---bucket "$1"
+  --bucket "$BUCKET_NAME" \
+  --max-items $MAX_ITEMS
+
+# STEP 5: Check command success
+if [ $? -eq 0 ]; then
+  echo ""
+  echo "✅ SUCCESS: Objects listed successfully"
+else
+  echo "❌ FAILURE: Could not list objects"
+  exit 1
+fi

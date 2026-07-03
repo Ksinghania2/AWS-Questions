@@ -1,0 +1,37 @@
+name: aws-s3-infrastructure
+runtime: python3.10
+description: AWS S3 Infrastructure as Code using Pulumi - Complete Documentation
+
+# Stack configuration can be overridden via Pulumi.<stack>.yaml files
+config:
+  # Environment (dev, staging, prod)
+  aws:region: us-east-1
+  
+  # Custom configuration
+  project_name: 
+    description: Project name for naming resources
+    default: myapp
+  
+  environment:
+    description: Environment name (dev, staging, prod)
+    default: dev
+  
+  enable_versioning:
+    description: Enable S3 versioning
+    default: true
+  
+  enable_encryption:
+    description: Enable server-side encryption
+    default: true
+  
+  enable_logging:
+    description: Enable access logging
+    default: true
+  
+  enable_replication:
+    description: Enable cross-region replication
+    default: false
+  
+  kms_key_id:
+    description: KMS key ID for encryption (optional)
+    default: ""

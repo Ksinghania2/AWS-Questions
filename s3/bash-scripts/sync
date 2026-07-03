@@ -1,21 +1,110 @@
 #!/usr/bin/env bash
 
-echo "== sync =="
+################################################################################
+# S3 BUCKET SYNC SCRIPT
+#
+# Purpose:
+#   This script synchronizes a local directory with an S3 bucket.
+#   Uploads new/modified files and optionally deletes files not in source.
+#
+# Prerequisites:
+#   - AWS CLI installed and configured with valid AWS credentials
+#   - Permissions: s3:ListBucket, s3:PutObject, s3:DeleteObject (if --delete)
+#   - Local source directory must exist
+#
+# Usage:
+#   ./sync <source-path> <bucket-name> [options]
+#
+# Examples:
+#   ./sync ./local-docs my-bucket
+#   ./sync . my-bucket --delete              (delete S3 files not in local)
+#   ./sync ./backup my-bucket --exclude "**\/temp/*"
+#
+# Sync Behavior:
+#   - New files in source: Uploaded to S3
+#   - Modified files: Re-uploaded with new ETag
+#   - Deleted files: Left in S3 (unless --delete flag)
+#   - Excluded files: Not synced (can use --exclude)
+#
+# Common Exclusions:
+#   .git/*      - Git repository files
+#   .gitignore  - Git ignore file
+#   .DS_Store   - macOS metadata
+#   node_modules/* - Node dependencies
+#   .env        - Environment files
+#
+# Performance Tips:
+#   - Exclude unnecessary files to reduce API calls
+#   - Use for backup/deployment automation
+#   - Use --dryrun to preview changes before syncing
+################################################################################
 
-#check for the source and destination
+echo "== S3 Bucket Sync =="
+
+# STEP 1: Validate Parameters
 if [ -z "$1" ] || [ -z "$2" ]; then
-  echo "Usage: ./sync <source-path> <bucket-name>"
-  echo "Example: ./sync ./local-folder kshitijsinghania-bucket"
+  echo "❌ ERROR: Source path and bucket name are required"
+  echo "Usage: ./sync <source-path> <bucket-name> [options]"
+  echo ""
+  echo "Examples:"
+  echo "  ./sync ./local-folder my-data-bucket"
+  echo "  ./sync . my-backup --delete --exclude '.git/*'"
+  echo ""
+  echo "Common Options:"
+  echo "  --delete              Delete destination files not in source"
+  echo "  --exclude PATTERN     Exclude files matching pattern"
+  echo "  --dryrun              Preview changes without syncing"
   exit 1
 fi
 
-source_path="$1"
-bucket_name="$2"
+# Store parameters for readability
+SOURCE_PATH="$1"
+BUCKET_NAME="$2"
+shift 2  # Remove first two args, remaining are options
 
-# Sync local folder to S3 bucket
-aws s3 sync "$source_path" "s3://$bucket_name" \
-  --delete \
-  --exclude ".git/*"
+# STEP 2: Validate source directory exists
+if [ ! -d "$SOURCE_PATH" ]; then
+  echo "❌ ERROR: Source directory not found: $SOURCE_PATH"
+  exit 1
+fi
 
-echo "Sync completed from $source_path to s3://$bucket_name"
+# STEP 3: Display sync configuration
+echo "📦 Source Directory: $SOURCE_PATH"
+echo "🪣 S3 Bucket: $BUCKET_NAME"
+echo "🌐 S3 Path: s3://$BUCKET_NAME"
+echo ""
+
+# STEP 4: Get directory statistics
+FILE_COUNT=$(find "$SOURCE_PATH" -type f | wc -l)
+DIR_SIZE=$(du -sh "$SOURCE_PATH" | cut -f1)
+echo "📊 Files to sync: $FILE_COUNT"
+echo "💾 Total size: $DIR_SIZE"
+echo ""
+
+# STEP 5: Execute sync command
+# aws s3 sync: Synchronizes local directory with S3 location
+# SOURCE_PATH: Local directory to sync from
+# s3://BUCKET_NAME: S3 destination
+# $@: Pass remaining arguments (--delete, --exclude, etc.)
+# --exclude ".git/*": Don't sync git files by default
+# --delete: Remove S3 files not in local source (optional)
+echo "⏳ Starting sync..."
+echo ""
+
+aws s3 sync "$SOURCE_PATH" "s3://$BUCKET_NAME" \
+  --exclude ".git/*" \
+  "$@"
+
+# STEP 6: Verify sync completion
+if [ $? -eq 0 ]; then
+  echo ""
+  echo "✅ SUCCESS: Sync completed from $SOURCE_PATH to s3://$BUCKET_NAME"
+  echo "💡 Verify files: aws s3 ls s3://$BUCKET_NAME --recursive"
+else
+  echo ""
+  echo "❌ FAILURE: Sync encountered an error"
+  exit 1
+fi
+
+exit 0
 

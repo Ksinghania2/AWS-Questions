@@ -1,18 +1,89 @@
 #!/usr/bin/env bash
 
-echo " == delete-objects == "
+################################################################################
+# S3 BUCKET OBJECTS DELETION SCRIPT
+#
+# Purpose:
+#   This script deletes ALL objects in an S3 bucket.
+#   Useful for emptying a bucket before deletion or cleanup operations.
+#
+# Prerequisites:
+#   - AWS CLI installed and configured with valid AWS credentials
+#   - Permissions: s3:ListBucket, s3:DeleteObject
+#   - For versioned buckets: s3:DeleteObjectVersion
+#
+# Usage:
+#   ./delete-objects <bucket-name>
+#
+# Example:
+#   ./delete-objects my-data-bucket
+#
+# Important:
+#   ⚠️  This PERMANENTLY deletes all objects
+#   ⚠️  For versioned buckets, only latest versions are visible
+#   ⚠️  Use '--version' flag for handling versioned objects
+#
+# How It Works:
+#   1. Lists all objects in bucket using list-objects-v2
+#   2. Extracts object keys using --query and text output
+#   3. Pipes keys to xargs for batch deletion
+#   4. Deletes each object using delete-object
+################################################################################
 
-#exit immediately if any objects returns a non-zero exit code
+echo " === Deleting All S3 Bucket Objects ==="
+
+# STEP 1: Exit immediately if any command fails (error handling)
 set -e
 
-# check for the bucket name
+# STEP 2: Validate Input Parameters
 if [ -z "$1" ]; then
-  echo "There need to be a bucket name eg. ./create-bucket.sh kshitijsinghania-bucket"
+  echo "❌ ERROR: Bucket name is required"
+  echo "Usage: ./delete-objects <bucket-name>"
+  echo "Example: ./delete-objects my-data-bucket"
   exit 1
 fi
 
-bucket_name="$1"
+# Store bucket name for readability
+BUCKET_NAME="$1"
 
-# Delete all objects in the bucket
-aws s3api list-objects-v2 --bucket "$bucket_name" --query 'Contents[].Key' --output text | \
-xargs -I {} aws s3api delete-object --bucket "$bucket_name" --key {}
+# STEP 3: Display operation details
+echo "⚠️  WARNING: You are about to DELETE ALL OBJECTS in: $BUCKET_NAME"
+echo "🔍 Scanning bucket..."
+
+# STEP 4: Count objects before deletion
+OBJECT_COUNT=$(aws s3api list-objects-v2 \
+  --bucket "$BUCKET_NAME" \
+  --query 'length(Contents)' \
+  --output text 2>/dev/null || echo "0")
+
+echo "📊 Objects found: $OBJECT_COUNT"
+echo ""
+
+# STEP 5: Verify bucket exists and has objects
+if [ "$OBJECT_COUNT" -eq 0 ]; then
+  echo "✅ Bucket is already empty. No objects to delete."
+  exit 0
+fi
+
+# STEP 6: Delete all objects
+# list-objects-v2: Lists all objects in bucket (handles pagination automatically)
+# --query 'Contents[].Key': Extracts only the object keys
+# --output text: Outputs as space-separated values (not JSON)
+# xargs: Takes input and passes as arguments to next command
+# -I {}: Placeholder for each key
+# delete-object: Deletes the object
+echo "🗑️  Deleting objects..."
+
+aws s3api list-objects-v2 --bucket "$BUCKET_NAME" \
+  --query 'Contents[].Key' \
+  --output text | \
+  xargs -I {} aws s3api delete-object \
+    --bucket "$BUCKET_NAME" \
+    --key "{}"
+
+# STEP 7: Verify deletion
+echo ""
+echo "✅ SUCCESS: All objects have been deleted from '$BUCKET_NAME'"
+echo "💡 Bucket is now ready for deletion using './delete-bucket $BUCKET_NAME'"
+
+exit 0
