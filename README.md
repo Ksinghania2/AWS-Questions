@@ -10,6 +10,7 @@ This repo is a simple place to practice AWS S3 with the CLI, PowerShell, IaC too
 - explore Java and Ruby SDK starters
 
 ## Main folders
+- [s3/README.md](s3/README.md) : organized S3 topic documentation
 - [s3/bash-scripts](s3/bash-scripts) : simple AWS CLI examples
 - [s3/powershell-scripts](s3/powershell-scripts) : PowerShell example
 - [s3/iac/cfn](s3/iac/cfn) : CloudFormation example

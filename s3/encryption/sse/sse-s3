@@ -1,0 +1,35 @@
+# SSE-S3
+
+Encryption protects data at rest and in transit to satisfy compliance requirements and reduce the impact of unauthorized access.
+
+## What you should know
+- S3 is an object store, so the unit of storage is an object rather than a block device or file system.
+- This capability helps you manage data more safely, more cheaply, or more efficiently depending on the workload.
+- AWS often recommends combining this feature with IAM, lifecycle rules, encryption, and monitoring for production use.
+
+## How it works
+1. Define the storage or access pattern that needs to be managed.
+2. Configure the feature at the bucket, object, or account level depending on the service behavior.
+3. Verify the effect with the AWS console, CLI, or API and review logs and metrics.
+
+## Common use cases
+- Backups and retention policies
+- Data sharing and application integration
+- Cost optimization and governance
+- Compliance and audit readiness
+
+## Example
+```bash
+aws s3 ls s3://my-bucket
+```
+
+## Best practices
+- Use clear naming and tagging so the data is easy to locate and govern.
+- Prefer IAM and bucket policies over legacy access mechanisms when possible.
+- Test configuration in a non-production bucket before rolling it out widely.
+- Review billing, access logs, and object metadata after enabling the feature.
+
+## Exam or interview notes
+- Understand the difference between service behavior, bucket-level settings, and object-level controls.
+- Know when this feature is appropriate and when a simpler configuration is better.
+- Remember that S3 features often work best when combined with versioning, encryption, and lifecycle rules.
